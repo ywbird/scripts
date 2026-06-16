@@ -3,7 +3,7 @@
 WM=$(cat /tmp/protocol)
 
 CFG_FILE=~/prg/scripts/screen-record_cfg
-OPTION=$(echo -e "[01] Whole Output\n[02] Rectangle\n[03] File Type" | ~/bin/select -c -p "Option: ")
+OPTION=$(echo -e "[01] Whole Output\n[02] Rectangle\n[03] File Type" | ~/.scripts/select.sh --fzf-flags "--prompt Option: ")
 
 case "$OPTION" in
   "[01] Whole Output")
@@ -37,7 +37,7 @@ case "$OPTION" in
     notify-send "Set screen recording rectangle" "'${REC_RECT}'."
   ;;
   "[03] File Type")
-    EXT=$(echo -e "mp4\nwebm" | ~/bin/select -c -p "Extension")
+    EXT=$(echo -e "mp4\nwebm" | ~/.scripts/select.sh --fzf-flags"--prompt Extension")
     sed -i "3c${EXT}" $CFG_FILE
   ;;
 esac 

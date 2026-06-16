@@ -1,12 +1,19 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-wm=$(cat /tmp/protocol)
+# dmenu replacement using alacritty
+# Reads from stdin, displays options, returns selected choice
 
-case $wm in
-  "x11")
-    exec dmenu -l 6 -i "$@"
-    ;;
-  "wayland")
-    exec fuzzel -d "$@"
-    ;;
-esac
+tmpfile=$(mktemp)
+cat > "$tmpfile"
+
+alacritty \
+  --class "custom.floating" \
+  -e bash -c "cat $tmpfile | fzf --no-info --no-preview --height 100% > /tmp/dmenu_result"
+
+# Read the result and output it
+if [ -f /tmp/dmenu_result ]; then
+  cat /tmp/dmenu_result
+  rm -f /tmp/dmenu_result
+fi
+
+rm -f "$tmpfile"

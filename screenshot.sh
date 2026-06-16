@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 IMG=$(xdg-user-dir PICTURES)/Captures/$(date +'%Y%m%d%H%M%S.png')
 
@@ -7,7 +7,9 @@ wm=$(cat /tmp/protocol)
 
 case $wm in
   "x11")
-    flameshot gui 
+    # flameshot gui -c -p ~/Pictures/Captures/
+    scrot -s $IMG
+    xclip -i -sel clip -t image/png "$IMG"
     ;;
   "wayland")
     grim -g "$(slurp -d)" $IMG

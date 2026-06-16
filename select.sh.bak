@@ -1,0 +1,52 @@
+#!/bin/bash
+# select.sh - dmenu alternative using alacritty and fzf with custom flags
+
+# 기본값
+alacritty_flags=""
+fzf_flags="--no-info --height 100% --reverse"
+
+# 인자 파싱
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --alacritty-flags)
+            alacritty_flags="$2"
+            shift 2
+            ;;
+        --fzf-flags)
+            fzf_flags="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# stdin에서 입력 받기
+input=$(cat)
+
+# 선택 항목이 없으면 종료
+if [[ -z "$input" ]]; then
+    exit 1
+fi
+
+# 명명된 파이프 생성
+fifo=$(mktemp -u)
+mkfifo "$fifo"
+trap "rm -f $fifo" EXIT
+
+# alacritty에서 fzf 실행하고 결과를 FIFO에 쓰기
+# shellcheck disable=SC2086
+alacritty --class="custom.floating" $alacritty_flags --command bash -c "echo '$input' | fzf $fzf_flags > '$fifo'" &
+
+# FIFO에서 결과 읽기 (블로킹)
+selected=$(cat "$fifo")
+
+# 선택 결과 출력
+if [[ -n "$selected" ]]; then
+    echo "$selected"
+    exit 0
+else
+    exit 1
+fi
